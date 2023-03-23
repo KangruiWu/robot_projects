@@ -1,0 +1,120 @@
+(define (domain delivery_htn)
+(:requirements :negative-preconditions 
+	:hierarchy
+	:typing
+	:equality
+	:method-preconditions
+)
+
+(:types 
+	gift - object
+	agent - object
+	robot - object
+	place - object
+)
+
+(:predicates 
+	(at ?o1 - object ?o2 - object)
+    (detected ?a - agent)
+    (loaded)
+)
+
+(:constants 
+  resetLoc - place
+  dino - robot
+)
+
+(:task SolveGift :parameters (?g - gift ?from - agent ?to - agent))
+(:task GetGift :parameters (?g - gift ?from - agent))
+(:task GiveGift :parameters (?g - gift ?from - agent ?to - agent))
+
+(:method Make_happy
+	:parameters (?g - gift ?from - agent ?to - agent)
+	:task (SolveGift ?g  ?from ?to)
+	:precondition (at ?g ?from)
+	:ordered-subtasks (and 
+		(GetGift ?g ?from)
+		(GiveGift ?g ?from ?to)
+	)
+)
+
+(:method do_Give_gift
+	:parameters (?g - gift ?from - agent ?to - agent)
+	:task (GiveGift ?g ?from ?to)
+	:precondition (and (detected ?to) (loaded) (at dino ?from))
+	:ordered-subtasks (and 
+		(goTo ?from ?to)
+		(drop ?g ?to)
+		(SolveGift ?g ?from ?to)
+	)
+)
+
+(:method detect_Give_gift
+	:parameters (?g - gift ?from - agent ?to - agent)
+	:task (GiveGift ?g ?from ?to)
+	:precondition (and (not(detected ?to)) (loaded) (at dino ?from)
+	)
+	:ordered-subtasks (and 
+		(detect ?to)
+		(goTo ?from ?to)
+		(drop ?g ?to)
+		(SolveGift ?g ?from ?to)
+	)
+)
+
+(:method do_Get_gift
+	:parameters (?g - gift ?giver - agent)
+	:task (GetGift ?g ?giver)
+	:precondition (and (detected ?giver) (at dino resetLoc) (at ?g ?giver) (not(loaded))
+	)
+	:ordered-subtasks (and 
+		(goTo resetLoc ?giver )
+		(pickUp ?g ?giver)
+	)
+)
+
+(:method detect_Get_gift
+	:parameters (?g - gift ?giver - agent)
+	:task (GetGift ?g ?giver)
+	:precondition (and (not(detected ?giver)) (at dino resetLoc) (at ?g ?giver) (not(loaded))
+	)
+	:ordered-subtasks (and 
+		(detect ?giver)
+		(goTo resetLoc ?giver )
+		(pickUp ?g ?giver)
+	)
+)
+
+(:method Reset
+	:parameters (?g - object ?receiver - agent)
+	:task (SolveGift ?g)
+	:precondition (and (at ?g ?receiver) (not(loaded))
+	)
+	:ordered-subtasks (goTo ?receiver resetLoc)
+)
+
+
+(:action pickUp
+    :parameters (?g - gift ?from - agent)
+    :precondition (and  (not(loaded)) (detected ?from) (at ?g ?from))
+    :effect (and (loaded) (at ?g dino) (not(at ?g ?from)))
+)
+
+(:action drop
+    :parameters (?g - gift ?to - agent)
+    :precondition (and (at ?g dino) (detected ?to) (loaded))
+    :effect (and (not(loaded)) (at ?g ?to) (not(at ?g dino)))
+) 
+
+(:action detect
+    :parameters (?a - agent)
+    :precondition (not(detected ?a))
+    :effect (detected ?a)
+)
+
+(:action goTo
+    :parameters (?from - object ?to - object)
+    :precondition (and (at dino ?from) )
+    :effect (and (at dino ?to) (not(at dino ?from)))
+) 
+)

@@ -1,0 +1,16 @@
+(define (problem delivery)
+(:domain delivery_htn)
+(:objects
+	gift1 - gift
+	giver receiver - agent
+)
+(:htn
+	:parameters ()
+	:ordered-subtasks (SolveGift gift1 giver receiver)
+)
+(:init 
+	(not(loaded))
+	(at dino resetLoc)
+	(at gift1 giver)
+)
+)
