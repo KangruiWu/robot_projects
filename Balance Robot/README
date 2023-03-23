@@ -1,12 +1,3 @@
-We use a Hierarchical Task Network Planner for this assignment called litotane. https://github.com/domschrei/lilotane
+balance_robot:
+Code for onboard ESP32. We use PID to achieve self-balance robot
 
-It is required to install it to make my code work.
-
-To generate the plan based on the init conditions, run in a terminal (it's automated, this is just for you to read the plan):
-./lilotane Hanoi/domain.hddl Hanoi/pfile01.hddl -v=0 | cut -d' ' -f2- | sed 1,2d | head -n -2 > plan.txt
-
-All file included in this .zip are to be added all together to the main folder.
-
-
-main file for delivery task: uberdino.py
-main file for hanoi tower task: hanoidino.py
