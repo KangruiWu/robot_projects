@@ -1,0 +1,122 @@
+(define (domain hanoi_htn)
+(:requirements :negative-preconditions 
+	:hierarchy
+	:typing
+	:equality
+	:method-preconditions
+)
+
+(:types 
+	bloc - object
+	platform - object
+	robot - object
+)
+
+(:predicates 
+    (clear ?o - object)
+    (smaller ?o0 - object ?o1 - object)
+	(on ?b - bloc ?o - object)
+    (loaded ?b - bloc)
+    (unloaded)
+	(detected ?o -  object)
+	(at ?r - robot ?o - object)
+)
+
+(:constants 
+  platform1 platform2 platform3 - platform
+  resetLoc - platform
+  dino - robot
+)
+
+(:task DetectPlatform :parameters (?o -  object))
+(:task MoveBloc :parameters (?b - bloc ?from - object ?to - object))
+(:task SolveHanoi :parameters ())
+
+(:method Solve
+	:parameters (?b - bloc ?from - object ?to - object)
+	:task (SolveHanoi)
+	:precondition (and (smaller ?b ?to) )
+	:ordered-subtasks (and 
+		(DetectPlatform ?from)
+		;(DetectPlatform platform2)
+		;(DetectPlatform platform3)
+		(MoveBloc ?b ?from ?to )
+		(SolveHanoi)
+	)
+)
+
+(:method StopMoves
+	:parameters ()
+	:task (SolveHanoi)
+	:precondition (and (clear platform1) (clear platform2) (unloaded)
+	)
+	:ordered-subtasks ()
+)
+
+(:method Move
+	:parameters (?b - bloc ?from - object ?to - object)
+	:task (MoveBloc ?b ?from ?to)
+	:precondition (and (clear ?b) (clear ?to) (unloaded) (on ?b ?from) (smaller ?b ?to) (detected ?from)
+	)
+	:ordered-subtasks (and 
+		(load ?b ?from )
+		(unload ?b ?to )
+	)
+)
+
+(:method Detect
+	:parameters (?o -  object)
+	:task (DetectPlatform ?o)
+	:precondition (and (not(detected ?o))
+	)
+	:ordered-subtasks (and 
+		(detect ?o)
+		(DetectPlatform ?o)
+	)
+)
+
+(:method NoDetect
+	:parameters (?o -  object)
+	:task (DetectPlatform ?o)
+	:precondition (and (detected ?o)
+	)
+	:ordered-subtasks ()
+)
+
+
+(:action load
+    :parameters (?b - bloc ?from - object)
+    :precondition (and (clear ?b) (unloaded) (on ?b ?from) )
+    :effect (and (loaded  ?b) (clear ?from) (not(on ?b ?from)) (not(unloaded)) )
+)
+
+(:action unload
+    :parameters (?b - bloc ?to - object)
+    :precondition (and (smaller ?b ?to) (loaded  ?b) (clear ?to) )
+    :effect (and (unloaded) (on ?b ?to) (not(clear ?to)) (not (loaded  ?b)) )
+) 
+
+(:action pickUp
+    :parameters (?g - gift ?from - agent)
+    :precondition (and  (not(loaded)) (detected ?from) (at ?g ?from))
+    :effect (and (loaded) (at ?g dino) (not(at ?g ?from)))
+)
+
+(:action drop
+    :parameters (?g - gift ?to - agent)
+    :precondition (and (at ?g dino) (detected ?to) (loaded))
+    :effect (and (not(loaded)) (at ?g ?to) (not(at ?g dino)))
+) 
+
+(:action detect
+    :parameters (?o -  object)
+    :precondition (not(detected ?o))
+    :effect (detected ?o)
+)
+
+(:action goTo
+    :parameters (?from - object ?to - object)
+    :precondition (and (at dino ?from) )
+    :effect (and (at dino ?to) (not(at dino ?from)))
+) 
+)

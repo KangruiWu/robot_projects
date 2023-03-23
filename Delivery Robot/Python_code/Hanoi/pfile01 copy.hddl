@@ -1,0 +1,29 @@
+(define (problem hanoi)
+(:domain hanoi_htn)
+(:objects
+	small medium large - bloc
+)
+(:htn
+	:parameters ()
+	:ordered-subtasks (SolveHanoi)
+)
+(:init 
+	(on small platform3) (clear small) (on medium platform2) (clear medium) (on large platform1) (clear large)
+
+	(smaller small medium)
+	(smaller medium large)
+	(smaller small large)
+
+	(smaller small platform1)
+	(smaller medium platform1)
+	(smaller large platform1)
+	(smaller small platform2)
+	(smaller medium platform2)
+	(smaller large platform2)
+	(smaller small platform3)
+	(smaller medium platform3)
+	(smaller large platform3)
+
+	(unloaded)
+)
+)
